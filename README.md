@@ -4,11 +4,15 @@ PETPVE12: an SPM toolbox for Partial Volume Effects correction of PET images
 PETPVE Toolbox for SPM12
 
 beta Version 1.0, 013 October 2015
+
 1st version 1.0, 022 September 2016
+
 Copyright (C) 2015 
+
 Contributors: Gabriel Gonzalez-Escamilla (DZNE, Rostock), Cartharina Lange (Charité, Berlin), Stefan Tepiel (DZNE, Rostock), Ralph Buchert (Charité, Berlin) and Michel J. Grothe (DZNE, Rostock).
 
 Developer and corresponding author: gabriellbk@gmail.com
+
 2nd Corresponding author: Michel.Grothe@dzne.de
 
 LICENCE
