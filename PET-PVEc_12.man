@@ -1,0 +1,173 @@
+% __________________________________________________________________________
+% Partial Volume Effects correction toolbox for PET images (PETPVE12)
+%             _
+%  _ __  ___ | |_  _ __ __   __ ___ 
+% | ´_ \/ _ \|  _|| ´_ \\ \ / // _ \
+% | |_)|  __/| |_ | |_)| \ V /   __/  PET-Partial Volume Effects correction toolbox
+% | ,__/\___||___|| ,__/  \_/  \___|
+% |_|             |_|
+% 
+% PET - Partial Volume Effects correction Toolbox (PETPVE12)
+% Version  003  (PETPVC12)  2016-05-04
+%  http://-...-/
+% __________________________________________________________________________
+% Copyright (C) 2015 Gabriel González-Escamilla gabriellbk@gmail.com
+% 
+% ==========================================================================
+% Description
+% ==========================================================================
+% This toolbox is a collection of extensions to the SPM12 software (Wellcome 
+% Department of Cognitive Neurology) to provide Partial volume Effects 
+% correction algorithms. It was developed by Gabriel Gonzalez-Escamilla, 
+% with the colaboration of Michel Grothe, Catharina Lange and Ralph Buchert, 
+% and is available to the scientific community under the terms of the GNU 
+% General Public License.
+% 
+% It includes tools to:
+%   Set the origin of images to center of mass (COM)
+%   Register MRI and PET images of many subjects at the same time (SPM co-register)
+%   Segment/Skull-Strip MR images into 3 different tissue compartments (GM, WM and CSF)
+%   Perform simple skull-stripping of MR images by using pre-computed GM/WM segments
+%   Perform PET PVE-correction (2 methods are available)
+%   Perform PET intensity normalization (scaling to a selected region of reference)
+%   Visualize and overlay the MRI and PET images
+%   
+% 
+% ==========================================================================
+% Outline
+% ==========================================================================
+% 
+% PET images are inherently affected by the partial-volume effect. 
+% This means that the measured tracer activity concentration is not accurate 
+% due to the relatively low image resolution and the limited tissue sampling. 
+% The low spatial resolution of the PET system causes a blurring of the image, 
+% so that high activities are spread to the surrounding. This effect is called 
+% spill-out. The same effect also causes a spill-in of background activity 
+% into the volume of interest.
+% 
+% 
+% ==========================================================================
+% Naming convention of output files (prefixes)
+% ==========================================================================
+%
+% Segmentation process images:
+% -----------------
+% m[01]ss[01]p[0123]*.nii
+% m0   - bias corrected
+% m1   - bias corrected (plus local histogram equalization & skull-striping)
+% ss0  - skull-stripped T1
+% ss1  - skull-stripped bias corrected (m0)
+% bm  - brain mask (binary)
+% c0  - PVC tissue labels (skull-stripped)
+% c1  - GM
+% c2  - WM
+% c3  - CSF
+% 
+% PVE-correction process images:
+% -----------------
+% pvc          - PVE corrected using the Muller-Gartner method
+% pvc*_labels  - PVE corrected using the modified Muller-Gartner method
+% sc*          - PSF convolved tissue compartments
+% w            - Atlas or mask, deformed from MNI to subject's space
+% e            - Eroded mask or tissue segment
+%
+% estimated PVEc rates:
+% -----------------------
+% pvc*_labels.txt
+% 
+%
+% ==========================================================================
+% Technical information
+% ==========================================================================
+%
+% This toolbox is an extension of the SPM12 to work with PET data, it 
+% uses a slightly different pre and post-processing approach.  
+% 
+% 1. The MRI (T1) segmentation approach also allows to output the skull- 
+% stripped image, whether by using graph-cuts method (Dahnke et al., 2011) 
+% or the anatomical data.
+% The method is based on the unified segmentation approach (Ashburner et al., 2005), 
+% but it requieres as input the label map SEG and the anatomical bias 
+% corrected T1 image, with an extra filter for noise reduction, as implemented 
+% on the VBM8 toolbox (http://dbm.neuro.uni-jena.de) and in this toolbox.
+% Some results from the SPM8 unified segmentation package (Ashburner and Friston, 2005)
+% are used to initialize an algorithm that classifies brain tissue into
+% gray matter (GM), white matter (WM), and cerebrospinal fluid (CSF).
+% The segmentation is extenden by a partial volume estimation (PVE) on the 
+% MR images to account for mixed voxels with two tissue types (Tohka et al., 2004). 
+% The algorithm uses an adaptive maximum a posteriori (AMAP) approach 
+% (Rajapakse et al., 1997) and a subsequent application of a hidden Markov 
+% random field model (Cuadra et al., 2005), as describer in Gaser, 2009. 
+% Within the AMAP estimation, the local variations of the parameters (means 
+% and variance) aremodeled as slowly varying spatial functions. This accounts 
+% for intensity inhomogeneities and other local variations. 
+%
+% 1.2. The skull-stripping using graph-cuts is based on the VBM8 toolbox 
+% and the work of Dahnke et al. (2011). The method uses atlas, distance and 
+% intensity information, and was validated for normal and abnormal brains 
+% of subjects with different age. A graph-cut algorithm is used to allocate 
+% GM/WM voxels around these regions. This algorithm need the bias corrected 
+% image after noise reduction, and the previous computed segmentation 
+% parameters. To remove blood vessels and meninges the graph-cut of cerebral 
+% structures only allows small increases of the image intensity for clustered 
+% of neighbors to the start voxels. For further blood vessel detection, 
+% morphological operations, as distance information are used.
+% 
+% 1.3. A second algorithm for skull-stripping has been added. It just needs 
+% the GM/WM tissue compartments, if the *seg8.mat files are entered, some 
+% information of these previous computed parameters is used, othewise the 
+% tissue compartments are thresholded, and used to construct a brainmask 
+% applied for the skull-stripping.
+%
+% 2. Partial volume effects correction based on the Müller-Gartner et al. 
+% (1992) algorithm. A three-compartment (gray matter/white matter/nonebrain 
+% correction) method to correct for the different uptake in GM and white 
+% matter (WM). Briefly, MG-PVC accounts for a PVE interaction betweenGM, WM, 
+% and CSF. The assumption of no contribution from CSF is still considered 
+% to be valid. The algorithm is initial-ized by estimating the PVE-free WM 
+% activity, followed bysubtracting the WM contribution from the PET image 
+% and de-convoluting the result using a smoothed GM mask.
+% MG assumes that the true PET signal in WM is the same across all WM 
+% voxels. This value is obtained and then multiplied by the WM PVF to get a 
+% “synthetic” WM image which is then subtracted from the raw PET to remove 
+% the contribution of WM from all voxels. The voxels in this image are then 
+% divided by the GM partial volume fraction (PVF) to correct for the 
+% reduction in GM intensity due to the scanner point-spread function (PSF).
+% PVC was implemented using the Muller-Gartner method with
+% the masking out of voxels with low gray matter (GM) PVF.
+% 
+% 3. Partial volume effects correction based on the approach proposed by 
+% Rousset et al. (1998). Multiple regions are considered and the regional 
+% spread function of each is calculated. The regional spread function is 
+% then used to compute a regional geometric transfer matrix between different
+% regions. The true concentrations of the regions are derived by inverting 
+% the geometric transfer matrix and multiplying by the measured regional 
+% concentrations.
+% 
+% 
+% 4. An intensity normalization can be applied to PET or PET-PVEc images. 
+% This can be based on an atlas ROI, to compute the mean activity of the 
+% cerebellum cortex, and then dividing the value in every voxel by this 
+% mean. The ROI of this structure can be found in the AAL atlas (included) 
+% or in the Hammers atlas (not included in the toolbox). Alexander Hammers/Rolf 
+% Heckemann’s brain atlas is described in Hammers A, Allom R et al., Hum 
+% Brain Mapp 2003 for regions 01-49 and Gousias IS et al. Neuroimage 2008 
+% for regions 50-67. The atlas can be downloaded from 
+% "http://www.braindevelopment.org/" and then selecting 
+% “Hammers Adult Brain Atlas”.
+% 
+% 4. Some tools for image visualization and overlaying are also provided.
+% 
+% 
+% 
+% References:
+% - Ashburner J (2005), ‘Unifed segmentation’, Neuroimage, vol. 26 (3) pp. 839-51
+% - Cuadra MB, Cammoun L, Butz T, Cuisenaire O, Thiran JP (2005) Comparison and validation of tissue modelization and statistical classification methods in T1-weighted MR brain images. IEEE Transactions on Medical Imaging 24: 1548–1565.
+% - Dahnke R (2011), Partitioning of the brain using graph-cut (http://dbm.neuro.uni-jena.de/HBM2011/Dahnke.pdf)
+% - Gaser C (2009), Partial volume segmentation with Adaptive Maximum a Posteriori (MAP) approach. NeuroImage 47: S121.
+% - Tohka J, Zijdenbos A, Evans A (2004), Fast and robust parameter estimation for statistical partial volume models in brain MRI. NeuroImage 23: 84–97.
+% - Rajapakse JC, Giedd JN, Rapoport JL (1997), Statistical approach to segmentation of single-channel cerebral MR images. IEEE Transactions on Medical Imaging 16: 176–186.
+% 
+% 
+% __________________________________________________________________________
+%                                     Gabriel González-Escamilla 2015/09/19
