@@ -55,7 +55,7 @@ for subj=1:size(S,1)
         % writing data
         % Save averaged PET image
         fprintf('saving: %s \n', cvt)
-        oPT = PTm;
+        oPT = PTm(1,1);
         oPT.fname = fullfile(odir, cvt);
         spm_write_vol(oPT,avgfrm);
     else
