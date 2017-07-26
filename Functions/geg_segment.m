@@ -556,7 +556,7 @@ for z=1:length(x3),
                 % Bayes theorem allows one to formally incorporate prior
                 % knowledge into computing statistical probabilities.
                 %
-                % The “posterior” probability of the parameters given the
+                % The Â“posteriorÂ” probability of the parameters given the
                 % data is an optimal combination of prior knowledge and new
                 % data, weighted by their relative precision.
                 %
@@ -1277,7 +1277,7 @@ if df(1),
     N         = nifti;
     N.dat     = file_array(fullfile(pth,['y_', nam1, '.nii']),...
         [d1,1,3],'float32',0,1,0);
-     if do_dartel
+     if apply_dartel
         N.dat.fname = fullfile(pth,['y_r', nam1, '.nii']);
      end
     N.mat     = M1;
