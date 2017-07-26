@@ -36,6 +36,7 @@ for subj=1:size(S,1)
     
     % Loading 4D data
     actPT = char(S(subj,:));% corregistered PET name
+    actPT = strtok(actPT,','); % to read 4D files prevent SPM to read it as: name,#
     PTm = spm_vol(actPT);% PET id matrix
     PTi = spm_read_vols(PTm);% PET image
     [pth,nam,ext] = spm_fileparts(actPT);
