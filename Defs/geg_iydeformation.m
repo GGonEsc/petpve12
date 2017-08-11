@@ -78,7 +78,7 @@ end
 %==========================================================================
 function [Def,mat] = get_def(job)
 % Load a deformation field saved as an image
-Nii = nifti(job{1});
+Nii = nifti(job);%job{1}
 Def = single(Nii.dat(:,:,:,1,:));
 d   = size(Def);
 if d(4)~=1 || d(5)~=3, error('Deformation field is wrong!'); end
