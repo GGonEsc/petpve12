@@ -60,7 +60,7 @@ for subj=1:size(S,1)
     djob.out{1}.pull.savedir.saveusr = {odir};
     switch deftype
         case 'defs'
-            djob.comp{1}.def = InDefs(subj); % Name of the deformation field (iy_*.nii)
+            djob.comp{1}.def = InDefs(subj,:); % Name of the deformation field (iy_*.nii)
         case 'dartel'
             djob.comp{1}.dartel = struct('flowfield',{{}},'template',{{}},'times',{{}},'K',{{}});
             djob.comp{1}.dartel.flowfield = {Inflowfields(subj,:)};% Name of the flow_field (u_*.nii)
