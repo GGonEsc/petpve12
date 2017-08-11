@@ -378,7 +378,7 @@ for subj=1:size(S,1)
                 y = ACSF;% PET constant activity in CSF
             end
         case 'type5'
-            gtmVals = importdata(GTMfiles(subj));
+            gtmVals = importdata(GTMfiles{subj});
             x = gtmVals.data(end-1);
             y = gtmVals.data(end);
     end
