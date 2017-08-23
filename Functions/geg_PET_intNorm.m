@@ -126,10 +126,18 @@ for subj=1:size(S,1)
     % writing data 
     % Save intensity corrected PET image
     fprintf('saving: %s \n', cvt)
-    oPT = PTm;
-    oPT.fname = fullfile(odir, cvt);
-    oPT.descrip = 'PETPVE12 - intNorm';
-    spm_write_vol(oPT,normPET);
+    % create a new header to avoid strange outputs
+    oPT.Nt      = nifti;
+    oPT.Nt.dat  = file_array(fullfile(odir,cvt),...
+        PTm.dim(1:3),...
+        [spm_type('int32') spm_platform('bigend')],...
+        0,1/255,0);
+    oPT.Nt.mat  = PTm.mat;
+    oPT.Nt.mat0 = PTm.mat;
+    oPT.Nt.descrip = 'Intensity Normalized';
+    create(oPT.Nt);
+    ind  = PTm.n;
+    oPT.Nt.dat(:,:,:,ind(1),ind(2))=double(normPET);
     
     fprintf('\n')
 end
