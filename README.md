@@ -9,6 +9,8 @@ beta Version 1.0, 013 October 2015
 
 Copyright (C) 2015 
 
+Citation: Gonzalez-Escamilla G, Lange C, Teipel S, Buchert R, Grothe MJ; Alzheimer's Disease Neuroimaging Initiative. PETPVE12: an SPM toolbox for Partial Volume Effects correction in brain PET - Application to amyloid imaging with AV45-PET. Neuroimage. 2017 Feb 15;147:669-677. doi: 10.1016/j.neuroimage.2016.12.077
+
 Contributors: Gabriel Gonzalez-Escamilla (DZNE, Rostock), Cartharina Lange (Charité, Berlin), Stefan Tepiel (DZNE, Rostock), Ralph Buchert (Charité, Berlin) and Michel J. Grothe (DZNE, Rostock).
 
 Developer and corresponding author: gabriellbk@gmail.com
