@@ -15,6 +15,7 @@ function geg_PET_intNorm(job)
 % 
 
 % rev = '$Rev: 005 $'; % 23-August-2017
+% rev = '$Rev: 006 $'; % 25-September-2018
 
 if nargin == 1
     S = job.data;
@@ -80,7 +81,7 @@ for subj=1:size(S,1)
             % 'ROI in subject space'
             rmask = SubjParcAtlas{subj};
             rmaskm = spm_vol(rmask);
-            % rmaski = spm_read_vols(rmaskm);
+            delmask = false; % rmaski = spm_read_vols(rmaskm);
         case 'type2'
             % 'ROI atlas in standard space'
             fprintf('Deforming template atlas to %s,. \n',actPT)
@@ -101,7 +102,7 @@ for subj=1:size(S,1)
             drmask = geg_iydeformation(djob);
             rmaskm = spm_vol(drmask.warpedName{1});
             % rmaski = spm_read_vols(rmaskm);% deformed mask
-            delete(rmaskm.fname)
+            delmask = true; % delete(rmaskm.fname)
             if save_subj_defROI
                 [~,n,~] = spm_fileparts(rmaskm.fname);
                 rmaskm.fname = fullfile(odir,[n '_' cvt(5:end-4) ext]);
@@ -114,6 +115,7 @@ for subj=1:size(S,1)
     if isvol
         % make sure dimensions are equal (fix it if not)
         [rmaski,~] = geg_reslice(PTm,rmaskm,0);
+        rmaski(isnan(rmaski)) = 0; % ensure there are no NaNs
     end
     
     % compute reference activity
@@ -122,6 +124,13 @@ for subj=1:size(S,1)
         maskact = mean(maskact(:));
     end
     normPET = PTi ./ maskact;
+    
+    % delete the created mask file as no individual file is to be saved
+    % (deifned only inside the script), and (only) if it was deformed
+    % from standard space
+    if isfile(rmaskm.fname) && delmask
+        delete(rmaskm.fname)
+    end
     
     % writing data 
     % Save intensity corrected PET image
