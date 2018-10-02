@@ -27,7 +27,7 @@ if nargin == 1
             SubjParcAtlas = job.PETnorm_opts.type1.RefMask;
             % As atlas is the same for all subjects it assumes a single txt
             % file containing 2 columns (names and assigned-value)
-            isvol = true;
+            isvol = true; isind = true;
         case 'type2'
             % 'Atlas in standard space'
             djob.out{1}.pull = struct('fnames',{{}},'savedir',{{}},'interp',{{}},'mask',{{}},'fwhm',{{}});
@@ -36,7 +36,7 @@ if nargin == 1
             djob.out{1}.pull.fwhm   = [0 0 0];
             deftype = fieldnames(job.PETnorm_opts.type2.InDefs);
             deftype = deftype{1};
-            isvol = true;
+            isvol = true; isind = false;
         case 'type3'    
             % User defined values
             SubjsRefAct = job.PETnorm_opts.type3.RefVals;
@@ -128,7 +128,7 @@ for subj=1:size(S,1)
     % delete the created mask file as no individual file is to be saved
     % (deifned only inside the script), and (only) if it was deformed
     % from standard space
-    if isfile(rmaskm.fname) && delmask
+    if isvol && ~isind && delmask
         delete(rmaskm.fname)
     end
     
