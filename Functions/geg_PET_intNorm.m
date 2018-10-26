@@ -16,6 +16,7 @@ function geg_PET_intNorm(job)
 
 % rev = '$Rev: 005 $'; % 23-August-2017
 % rev = '$Rev: 006 $'; % 25-September-2018
+% rev = '$Rev: 007 $'; % 26-October-2018
 
 if nargin == 1
     S = job.data;
