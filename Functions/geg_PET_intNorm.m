@@ -119,11 +119,16 @@ for subj=1:size(S,1)
     end
     
     % compute reference activity
+    % This has been modified to account for effects of atlas matching.
     if isvol
-        maskact = PTi.*rmaski;
-        maskact = mean(maskact(:));
+        rmaski2 = zeros(size(rmaski));
+        rmaski2(find(rmaski~=0)) = 1;% binarize to avoid any interpolation effects
+        %rmaski2(find(rmaski>0)) = 1;
+        maskact = PTi.*rmaski2; % Get the reference activity at each voxel (the mask normally could not perfectly fit the image)
+        maskact2 = maskact(find(maskact~=0));% Then, ensure that zero values are not included in the average calculation
+        maskact2 = mean(maskact2);
     end
-    normPET = PTi ./ maskact;
+    normPET = PTi ./ maskact2;
     
     % delete the created mask file as no individual file is to be saved
     % (deifned only inside the script), and (only) if it was deformed
