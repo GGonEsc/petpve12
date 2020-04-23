@@ -126,10 +126,10 @@ for subj=1:size(S,1)
         rmaski2(find(rmaski~=0)) = 1;% binarize to avoid any interpolation effects
         %rmaski2(find(rmaski>0)) = 1;
         maskact = PTi.*rmaski2; % Get the reference activity at each voxel (the mask normally could not perfectly fit the image)
-        maskact2 = maskact(find(maskact~=0));% Then, ensure that zero values are not included in the average calculation
-        maskact2 = mean(maskact2);
+        maskact = maskact(find(maskact~=0));% Then, ensure that zero values are not included in the average calculation
+        maskact = mean(maskact);
     end
-    normPET = PTi ./ maskact2;
+    normPET = PTi ./ maskact;
     
     % delete the created mask file as no individual file is to be saved
     % (deifned only inside the script), and (only) if it was deformed
