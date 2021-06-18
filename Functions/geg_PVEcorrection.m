@@ -27,8 +27,9 @@ function geg_PVEcorrection(job)
 % Usage:
 % Choose threshold (thr) for GM mask.
 % 
-% Author: Michel Grothe 08 November 2013 $ 
-% Modified by Gabriel Gonzalez-Escamilla March 2015
+% Based on the idea of Michel Grothe 08 November 2013 $ to perform everything using 
+% the image calculator.
+% Author: Gabriel Gonzalez-Escamilla March 2015
 %
 %   % To apply the PVE correction method the MR image is decomposed (i.e.,
     % segmented) into its constituent tissue types, and a mathematical
