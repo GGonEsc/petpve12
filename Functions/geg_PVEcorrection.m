@@ -365,7 +365,7 @@ for subj=1:size(S,1)
             [epth,enam,eext] = spm_fileparts(WMm.fname);
             eWMm = WMm; eWMm.fname = fullfile(epth,['e' enam, eext]);% '_eroded'
             AWM = geg_calc_constants(PTm,eWMm,0);
-            x = ACSF;% PET constant activity in CSF
+            x = AWM;% PET constant activity in WM
             if csfzeroing
                 y = 0;% PET constant activity in CSF
             else
